@@ -6,8 +6,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
 import * as Animatable from 'react-native-animatable';
+import React, {useEffect, useRef, useState} from 'react';
 import RadialGradient from 'react-native-radial-gradient';
 
 import {COLORS, FONTS} from '../../constants';
@@ -16,9 +16,21 @@ interface CategoryCardProps {
   title: string;
   description: string;
   image: ImageSourcePropType;
+  index: number;
+  first: boolean;
+  last: boolean;
+  scrollRef: any;
 }
 
-const CategoryCard = ({title, description, image}: CategoryCardProps) => {
+const CategoryCard = ({
+  title,
+  description,
+  image,
+  index,
+  first,
+  last,
+  scrollRef,
+}: CategoryCardProps) => {
   const categoryRef = useRef<Animatable.View>(null);
 
   const [focused, setFocused] = useState<boolean>(false);
@@ -50,12 +62,28 @@ const CategoryCard = ({title, description, image}: CategoryCardProps) => {
       },
     };
 
+    if (focused && first) {
+      scrollRef.current?.scrollToIndex({
+        index: 0,
+        animated: true,
+        viewPosition: 10,
+      });
+    }
+
+    if (focused && last) {
+      scrollRef.current?.scrollToIndex({
+        index,
+        animated: true,
+        viewPosition: -10,
+      });
+    }
+
     if (focused) {
       categoryRef.current?.animate(focus);
     } else {
       categoryRef.current?.animate(blur);
     }
-  }, [focused]);
+  }, [first, focused, index, last, scrollRef]);
 
   return (
     <TouchableOpacity

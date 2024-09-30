@@ -55,7 +55,11 @@ const data = [
   },
 ];
 
-const Carousel = () => {
+interface CarouselProps {
+  scrollRef: any;
+}
+
+const Carousel = ({scrollRef}: CarouselProps) => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
 
   const [index, setIndex] = useState<number>(0);
@@ -64,6 +68,10 @@ const Carousel = () => {
 
   useEffect(() => {
     const isFocused = () => focused !== null;
+
+    if (isFocused()) {
+      scrollRef.current?.scrollTo({y: 0});
+    }
 
     const highlightState = setTimeout(() => {
       if (isFocused()) {
@@ -74,7 +82,7 @@ const Carousel = () => {
     }, 300);
 
     return () => clearTimeout(highlightState);
-  }, [focused]);
+  }, [focused, scrollRef]);
 
   return (
     <View style={[styles.container, highlight && styles.focused]}>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import {ScrollView, StyleSheet, TVFocusGuideView} from 'react-native';
 
 import Carousel from '../../components/home/carousel';
@@ -9,12 +9,15 @@ import Recommended from '../../components/home/recommended';
 import {COLORS} from '../../constants';
 
 const Home = () => {
+  const scrollRef = useRef(null);
+
   return (
     <TVFocusGuideView autoFocus style={styles.container}>
       <ScrollView
+        ref={scrollRef}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContainer}>
-        <Carousel />
+        <Carousel scrollRef={scrollRef} />
 
         <Categories />
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import {FlatList, StyleSheet, Text, TVFocusGuideView} from 'react-native';
 
 import CategoryCard from './category-card';
@@ -28,16 +28,28 @@ const categories = [
 ];
 
 const Categories = () => {
+  const scrollRef = useRef<FlatList>(null);
+
   return (
     <TVFocusGuideView autoFocus>
       <Text style={styles.header}>Categories</Text>
 
       <FlatList
         horizontal
+        ref={scrollRef}
         data={categories}
-        contentContainerStyle={styles.conatiner}
         showsHorizontalScrollIndicator={false}
-        renderItem={({item}) => <CategoryCard key={item.id} {...item} />}
+        contentContainerStyle={styles.conatiner}
+        renderItem={({item, index}) => (
+          <CategoryCard
+            {...item}
+            key={item.id}
+            index={index}
+            scrollRef={scrollRef}
+            first={index === 0}
+            last={index === categories.length - 1}
+          />
+        )}
       />
     </TVFocusGuideView>
   );
