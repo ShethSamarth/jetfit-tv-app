@@ -11,6 +11,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import {COLORS, FONTS} from '../../constants';
+import SubFiltersDrawer from './sub-filters-drawer';
 
 interface FiltersDrawerProps {
   open: boolean;
@@ -66,6 +67,7 @@ const FiltersDrawer = ({open, setOpen}: FiltersDrawerProps) => {
   const drawerRef = useRef<Animatable.View>(null);
 
   const [focused, setFocused] = useState<number | null>(null);
+  const [subDrawer, setSubDrawer] = useState<boolean>(false);
 
   useEffect(() => {
     const drawerOpen = {
@@ -79,71 +81,78 @@ const FiltersDrawer = ({open, setOpen}: FiltersDrawerProps) => {
   }, [open]);
 
   return (
-    <Modal
-      transparent
-      visible={open}
-      animationType="none"
-      onRequestClose={() => setOpen(!open)}>
-      <TVFocusGuideView autoFocus style={styles.container}>
-        <Animatable.View ref={drawerRef} style={styles.drawer}>
-          <Text style={styles.header}>Filters</Text>
+    <>
+      <Modal
+        transparent
+        visible={open}
+        animationType="none"
+        onRequestClose={() => setOpen(!open)}>
+        <TVFocusGuideView autoFocus style={styles.container}>
+          <Animatable.View ref={drawerRef} style={styles.drawer}>
+            <Text style={styles.header}>Filters</Text>
 
-          <View>
-            {menus.map(item => (
-              <TouchableOpacity
-                key={item.id}
-                activeOpacity={1}
-                onBlur={() => setFocused(null)}
-                onFocus={() => setFocused(item.id)}
-                hasTVPreferredFocus={item.id === 1}
-                style={[styles.btn, focused === item.id && styles.btnFocused]}>
-                <View style={styles.left}>
-                  <Ionicons
-                    size={20}
-                    name={item.icon}
-                    color={
-                      focused === item.id
-                        ? COLORS.surface[30]
-                        : COLORS.neutral[80]
-                    }
-                  />
-                  <View>
-                    <Text
-                      numberOfLines={1}
-                      style={[
-                        styles.title,
-                        focused === item.id && styles.textFocused,
-                      ]}>
-                      {item.title}
-                    </Text>
-                    <Text
-                      numberOfLines={1}
-                      style={[
-                        styles.subtitle,
-                        focused === item.id && styles.textFocused,
-                      ]}>
-                      {item.subtitle}
-                    </Text>
+            <View>
+              {menus.map(item => (
+                <TouchableOpacity
+                  key={item.id}
+                  activeOpacity={1}
+                  onBlur={() => setFocused(null)}
+                  onPress={() => setSubDrawer(true)}
+                  onFocus={() => setFocused(item.id)}
+                  hasTVPreferredFocus={item.id === 1}
+                  style={[
+                    styles.btn,
+                    focused === item.id && styles.btnFocused,
+                  ]}>
+                  <View style={styles.left}>
+                    <Ionicons
+                      size={20}
+                      name={item.icon}
+                      color={
+                        focused === item.id
+                          ? COLORS.surface[30]
+                          : COLORS.neutral[80]
+                      }
+                    />
+                    <View>
+                      <Text
+                        numberOfLines={1}
+                        style={[
+                          styles.title,
+                          focused === item.id && styles.textFocused,
+                        ]}>
+                        {item.title}
+                      </Text>
+                      <Text
+                        numberOfLines={1}
+                        style={[
+                          styles.subtitle,
+                          focused === item.id && styles.textFocused,
+                        ]}>
+                        {item.subtitle}
+                      </Text>
+                    </View>
                   </View>
-                </View>
 
-                {item.isExpandable && (
-                  <Ionicons
-                    size={20}
-                    name="chevron-forward"
-                    color={
-                      focused === item.id
-                        ? COLORS.surface[30]
-                        : COLORS.neutral[80]
-                    }
-                  />
-                )}
-              </TouchableOpacity>
-            ))}
-          </View>
-        </Animatable.View>
-      </TVFocusGuideView>
-    </Modal>
+                  {item.isExpandable && (
+                    <Ionicons
+                      size={20}
+                      name="chevron-forward"
+                      color={
+                        focused === item.id
+                          ? COLORS.surface[30]
+                          : COLORS.neutral[80]
+                      }
+                    />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
+          </Animatable.View>
+        </TVFocusGuideView>
+      </Modal>
+      <SubFiltersDrawer open={subDrawer} setOpen={setSubDrawer} />
+    </>
   );
 };
 
