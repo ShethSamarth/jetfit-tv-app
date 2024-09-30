@@ -1,5 +1,5 @@
 import React from 'react';
-import {FlatList, StyleSheet, TVFocusGuideView} from 'react-native';
+import {StyleSheet, TVFocusGuideView, View} from 'react-native';
 
 import Card from './card';
 
@@ -46,35 +46,35 @@ interface CardsListProps {
   hasTVPreferredFocus?: boolean;
 }
 
-const CardsList = ({
+const CardsGrid = ({
   variant = 16 / 9,
   hasTVPreferredFocus = false,
 }: CardsListProps) => {
   return (
     <TVFocusGuideView autoFocus>
-      <FlatList
-        horizontal
-        data={data}
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.container}
-        renderItem={({item}) => (
-          <Card
-            {...item}
-            key={item.id}
-            variant={variant}
-            hasTVPreferredFocus={hasTVPreferredFocus && item.id === 1}
-          />
-        )}
-      />
+      <View style={styles.container}>
+        {data.map(item => {
+          return (
+            <Card
+              {...item}
+              key={item.id}
+              variant={variant}
+              hasTVPreferredFocus={hasTVPreferredFocus && item.id === 1}
+            />
+          );
+        })}
+      </View>
     </TVFocusGuideView>
   );
 };
 
-export default CardsList;
+export default CardsGrid;
 
 const styles = StyleSheet.create({
   container: {
-    columnGap: 24,
+    gap: 24,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     paddingVertical: 20,
     paddingHorizontal: 30,
   },

@@ -18,6 +18,7 @@ interface CardProps {
   title: string;
   duration: number;
   intensity: number;
+  variant?: number;
   hasTVPreferredFocus?: boolean;
 }
 
@@ -26,6 +27,7 @@ const Card = ({
   title,
   duration,
   intensity,
+  variant = 16 / 9,
   hasTVPreferredFocus = false,
 }: CardProps) => {
   const [focused, setFocused] = useState<boolean>(false);
@@ -40,7 +42,12 @@ const Card = ({
         onFocus={() => setFocused(true)}
         onPress={() => setModalOpen(true)}
         hasTVPreferredFocus={hasTVPreferredFocus}>
-        <View style={[styles.imageContainer, focused && styles.focused]}>
+        <View
+          style={[
+            styles.imageContainer,
+            focused && styles.focused,
+            {aspectRatio: variant},
+          ]}>
           <Image source={image} style={styles.image} />
         </View>
         <Text style={styles.title} numberOfLines={1}>
@@ -68,7 +75,6 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: '100%',
-    aspectRatio: 16 / 9,
     borderRadius: 14,
     overflow: 'hidden',
     borderColor: COLORS.neutral[80],
