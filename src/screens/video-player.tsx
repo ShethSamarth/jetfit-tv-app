@@ -6,8 +6,9 @@ import {
   View,
   type HWEvent,
 } from 'react-native';
+// @ts-ignore
+import Video from 'react-native-video';
 import React, {useEffect, useRef, useState} from 'react';
-import Video, {type OnLoadData} from 'react-native-video';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import Overlay from '../components/video-player/overlay';
@@ -16,6 +17,8 @@ import QualityDrawer from '../components/video-player/quality-drawer';
 import SubtitleDrawer from '../components/video-player/subtitle-drawer';
 
 import {COLORS, FONTS} from '../constants';
+import EndScreen from '../components/video-player/end-screen';
+import {RouteProp, useRoute} from '@react-navigation/native';
 
 export type AudioTrackType = {
   index: number;
@@ -39,11 +42,56 @@ export type VideoTrackType = {
   trackId: string;
 };
 
-interface Data extends OnLoadData {
+interface Data {
   trackId: string;
+  canPlayFastForward: boolean;
+  canPlayReverse: boolean;
+  canPlaySlowForward: boolean;
+  canPlaySlowReverse: boolean;
+  canStepBackward: boolean;
+  canStepForward: boolean;
+  currentPosition: number;
+  currentTime: number;
+  duration: number;
+  naturalSize: {
+    height: number;
+    width: number;
+    orientation: 'portrait' | 'landscape';
+  };
+  videoTracks: {
+    bitrate: number;
+    codecs: string;
+    width: number;
+    height: number;
+    trackId: string;
+  }[];
+  audioTracks: {
+    index: number;
+    title: string;
+    language: string;
+    type: string;
+  }[];
+  textTracks: {
+    index: number;
+    title: string;
+    language: string;
+    type: string;
+  }[];
 }
 
+type ParamList = {
+  VideoPlayer: {
+    url?: string;
+  };
+};
+
 const VideoPlayer = () => {
+  const {params} = useRoute<RouteProp<ParamList, 'VideoPlayer'>>();
+
+  const url =
+    params?.url ??
+    'https://devstreaming-cdn.apple.com/videos/streaming/examples/adv_dv_atmos/main.m3u8';
+
   const videoRef = useRef<any>(null);
 
   const [error, setError] = useState(null);
@@ -51,6 +99,7 @@ const VideoPlayer = () => {
   const [duration, setDuration] = useState<number>(0);
   const [changingProgress, setChangingProgress] = useState<boolean>(false);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [videoEnded, setVideoEnded] = useState<boolean>(false);
   const [isBuffering, setIsBuffering] = useState<boolean>(false);
   const [textTracks, setTextTracks] = useState<TextTrackType[]>([]);
   const [audioTracks, setAudioTracks] = useState<AudioTrackType[]>([]);
@@ -95,6 +144,7 @@ const VideoPlayer = () => {
   useTVEventHandler(handleTvEvent);
 
   const onLoad = (data: Data) => {
+    setVideoEnded(false);
     setTextTracks(data.textTracks);
     setAudioTracks(data.audioTracks);
     setVideoTracks(data.videoTracks);
@@ -125,6 +175,12 @@ const VideoPlayer = () => {
     }
   }, [changingProgress, progress]);
 
+  const onRepeat = () => {
+    setVideoEnded(false);
+    setChangingProgress(true);
+    setProgress(0);
+  };
+
   return (
     <View style={styles.container}>
       <Video
@@ -135,12 +191,13 @@ const VideoPlayer = () => {
         posterResizeMode="cover"
         style={styles.container}
         ignoreSilentSwitch="ignore"
+        onEnd={() => setVideoEnded(true)}
         onError={(e: any) => setError(e.error)}
-        onProgress={e => setProgress(e.currentTime)}
         paused={!isPlaying && selectedVideoTrack !== null}
+        onProgress={(e: any) => setProgress(e.currentTime)}
         onBuffer={(e: any) => setIsBuffering(e.isBuffering)}
         source={{
-          uri: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/adv_dv_atmos/main.m3u8',
+          uri: url,
         }}
         poster="https://www.clarin.com/img/2024/08/29/Vdz5baoA-_1256x620__1.jpg"
         selectedTextTrack={{
@@ -180,7 +237,7 @@ const VideoPlayer = () => {
         />
       )}
 
-      {!isBuffering && !error && showOverlay && (
+      {!videoEnded && !isBuffering && !error && showOverlay && (
         <Overlay
           progress={progress}
           duration={duration}
@@ -198,6 +255,8 @@ const VideoPlayer = () => {
           onSliderValueChange={onSliderValueChange}
         />
       )}
+
+      {videoEnded && <EndScreen onRepeat={onRepeat} />}
 
       <QualityDrawer
         open={qualityDrawerOpen}

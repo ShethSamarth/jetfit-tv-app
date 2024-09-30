@@ -64,5 +64,5 @@ buck-out/
 /vendor/bundle/
 
 # cache
-.yarn
+.yarn/cache
 .expo
